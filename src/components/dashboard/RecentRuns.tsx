@@ -1,39 +1,56 @@
 import { motion } from "framer-motion";
-import { Search, Globe, ShoppingCart, Zap } from "lucide-react";
+import { Search, Globe, ShoppingCart, Zap, CheckCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
+
+const providerBadge: Record<string, string> = {
+  brave: "bg-brand-indigo",
+  serper: "bg-brand-cyan",
+  tavily: "bg-warning",
+  tinyfish: "bg-success",
+};
 
 const runs = [
   {
     icon: Globe,
-    name: "Google vs. Perplexity Bench",
-    meta: "LAUNCHED 2 HOURS AGO • QUERY-SET-PRODUCTION-V4",
-    passRate: 88,
-    passColor: "bg-brand-indigo",
-    scoreChange: "+2.4%",
-    scoreUp: true,
+    name: "General Knowledge Bench",
+    dataset: "sample",
+    providers: ["brave", "serper", "tavily", "tinyfish"],
+    status: "completed" as const,
+    top_k: 10,
+    meta: "COMPLETED 2 HOURS AGO",
+    bestProvider: "tavily",
+    bestNdcg: 0.891,
   },
   {
     icon: ShoppingCart,
-    name: "Product Query Set V2",
-    meta: "LAUNCHED YESTERDAY • E-COMMERCE-RETRIEVAL-SUITE",
-    passRate: 64,
-    passColor: "bg-warning",
-    scoreChange: "-1.2%",
-    scoreUp: false,
+    name: "E-Commerce Query Set",
+    dataset: "ecommerce-v2",
+    providers: ["brave", "serper", "tavily"],
+    status: "completed" as const,
+    top_k: 10,
+    meta: "COMPLETED YESTERDAY",
+    bestProvider: "brave",
+    bestNdcg: 0.842,
   },
   {
     icon: Zap,
-    name: "Latency Stress Test 400ms",
-    meta: "OCT 24, 2023 • GLOBAL-EDGE-BENCH",
-    passRate: 98,
-    passColor: "bg-brand-indigo",
-    scoreChange: "~0.0%",
-    scoreUp: null,
+    name: "Latency Stress Test",
+    dataset: "latency-edge",
+    providers: ["serper", "tinyfish"],
+    status: "running" as const,
+    top_k: 5,
+    meta: "RUNNING NOW",
+    bestProvider: null,
+    bestNdcg: null,
   },
 ];
 
 const RecentRuns = () => {
   const [filter, setFilter] = useState("");
+
+  const filtered = runs.filter(
+    (r) => !filter || r.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
   return (
     <motion.div
@@ -59,7 +76,7 @@ const RecentRuns = () => {
       </div>
 
       <div className="space-y-0">
-        {runs.map((run, i) => {
+        {filtered.map((run, i) => {
           const Icon = run.icon;
           return (
             <div key={i} className="flex gap-3 py-4 border-b border-border last:border-0">
@@ -67,7 +84,7 @@ const RecentRuns = () => {
                 <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center shrink-0">
                   <Icon className="w-4 h-4 text-foreground" />
                 </div>
-                {i < runs.length - 1 && (
+                {i < filtered.length - 1 && (
                   <div className="w-px flex-1 bg-border mt-2" />
                 )}
               </div>
@@ -76,27 +93,42 @@ const RecentRuns = () => {
                   {run.name}
                 </p>
                 <p className="font-mono-brand text-[9px] tracking-wider text-muted-foreground mt-0.5 uppercase">
-                  {run.meta}
+                  {run.meta} · TOP-K={run.top_k}
                 </p>
-                <div className="flex items-center gap-6 mt-3">
-                  <div>
-                    <p className="font-mono-brand text-[9px] tracking-[0.15em] uppercase text-muted-foreground mb-1">
-                      Pass Rate
-                    </p>
-                    <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-bold font-mono-brand text-primary-foreground ${run.passColor}`}>
-                      {run.passRate}%
+
+                {/* Provider badges */}
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {run.providers.map((p) => (
+                    <span
+                      key={p}
+                      className={`${providerBadge[p]} text-primary-foreground font-mono-brand text-[9px] font-bold px-2 py-0.5 rounded-md uppercase`}
+                    >
+                      {p}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-4 mt-3">
+                  <div className="flex items-center gap-1.5">
+                    {run.status === "completed" ? (
+                      <CheckCircle className="w-3.5 h-3.5 text-success" />
+                    ) : (
+                      <Loader2 className="w-3.5 h-3.5 text-brand-cyan animate-spin" />
+                    )}
+                    <span className="font-mono-brand text-[10px] font-semibold uppercase text-muted-foreground">
+                      {run.status}
                     </span>
                   </div>
-                  <div>
-                    <p className="font-mono-brand text-[9px] tracking-[0.15em] uppercase text-muted-foreground mb-1">
-                      Score Change
-                    </p>
-                    <span className={`text-sm font-semibold font-mono-brand ${
-                      run.scoreUp === true ? "text-success" : run.scoreUp === false ? "text-danger" : "text-muted-foreground"
-                    }`}>
-                      {run.scoreUp === true ? "↗" : run.scoreUp === false ? "↘" : "—"} {run.scoreChange}
-                    </span>
-                  </div>
+                  {run.bestProvider && run.bestNdcg && (
+                    <div>
+                      <span className="font-mono-brand text-[9px] text-muted-foreground uppercase">
+                        Best NDCG:{" "}
+                      </span>
+                      <span className="font-mono-brand text-xs font-bold text-foreground">
+                        {run.bestNdcg} ({run.bestProvider})
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -105,7 +137,7 @@ const RecentRuns = () => {
       </div>
 
       <button className="w-full text-center text-brand-indigo font-mono-brand text-xs font-semibold tracking-wider uppercase mt-4 hover:opacity-70 transition-opacity">
-        View All 142 Runs
+        View All 47 Runs
       </button>
     </motion.div>
   );

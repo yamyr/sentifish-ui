@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Plus, User } from "lucide-react";
+import { Plus, Fish } from "lucide-react";
 
 const DashboardHeader = () => (
   <motion.header
@@ -10,27 +10,22 @@ const DashboardHeader = () => (
     <div className="flex items-center justify-between mb-8">
       <div className="flex items-center gap-2.5">
         <div className="w-8 h-8 rounded-lg bg-brand-indigo flex items-center justify-center">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="2" y="2" width="5" height="5" rx="1" fill="white" />
-            <rect x="9" y="2" width="5" height="5" rx="1" fill="white" opacity="0.6" />
-            <rect x="2" y="9" width="5" height="5" rx="1" fill="white" opacity="0.6" />
-            <rect x="9" y="9" width="5" height="5" rx="1" fill="white" opacity="0.3" />
-          </svg>
+          <Fish className="w-4 h-4 text-primary-foreground" />
         </div>
         <span className="font-sans-brand font-bold text-foreground text-sm tracking-tight">
-          ClinicalArchitect
+          Sentifish
         </span>
       </div>
-      <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center">
-        <User className="w-4 h-4 text-muted-foreground" />
-      </div>
+      <span className="font-mono-brand text-[9px] tracking-[0.15em] uppercase text-muted-foreground bg-secondary px-2.5 py-1 rounded-lg">
+        4 Providers
+      </span>
     </div>
 
     <h1 className="font-sans-brand font-bold text-[2rem] leading-[1.1] tracking-tight text-foreground mb-3">
-      Search Evaluation<br />Dashboard
+      Web Search<br />Agent Evals
     </h1>
     <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-[320px]">
-      Systematic benchmarking of retrieval precision and citation veracity across competitive LLM search architectures.
+      Compare Brave, Serper, Tavily & TinyFish with IR metrics — Precision@K, Recall@K, NDCG@K, MRR & Latency.
     </p>
 
     <button className="w-full flex items-center justify-center gap-2 bg-brand-indigo text-primary-foreground font-sans-brand font-semibold text-sm py-3.5 rounded-xl hover:opacity-90 transition-opacity">
